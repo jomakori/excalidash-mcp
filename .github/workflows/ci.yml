@@ -1,0 +1,30 @@
+name: CI
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: astral-sh/setup-uv@v10.2.0
+      - name: ruff check
+        run: uv tool run --from ruff==0.16.10 ruff check .
+      - name: ruff format
+        run: uv tool run --from ruff==0.16.10 ruff format --check .
+
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - name: unittest
+        run: python3 -m unittest discover -s tests -v
+      - name: compileall
+        run: python3 -m compileall -q src

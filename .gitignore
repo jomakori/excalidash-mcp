@@ -1,5 +1,2 @@
-__pycache__/
-*.pyc
-.venv/
-.pytest_cache/
-.ruff_cache/
+/excalidash-mcp
+dist/

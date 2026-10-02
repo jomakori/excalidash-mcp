@@ -60,7 +60,7 @@ def _request(method: str, path: str, payload=None) -> Any:
         except urllib.error.HTTPError as err:
             raw = err.read().decode(errors="replace")
             if err.code == 403 and "CSRF" in raw and attempt == 1:
-                _csrf["token"] = ""
+                _csrf_token()
                 continue
             raise ApiError(f"HTTP {err.code} {method} {path}: {raw[:400]}") from err
     raise ApiError(f"CSRF token could not be refreshed for {method} {path}")

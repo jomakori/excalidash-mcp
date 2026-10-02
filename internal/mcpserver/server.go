@@ -66,31 +66,26 @@ func New(version string, api *excalidash.Client) *mcp.Server {
 	return server
 }
 
-// listDrawingsArgs are the inputs of list_drawings.
 type listDrawingsArgs struct {
 	Limit int `json:"limit,omitempty" jsonschema:"Maximum drawings to return."`
 }
 
-// drawingIDArgs are the inputs of the tools that act on one drawing.
 type drawingIDArgs struct {
 	ID string `json:"id" jsonschema:"Drawing id."`
 }
 
-// createDrawingArgs are the inputs of create_drawing.
 type createDrawingArgs struct {
 	Name         string `json:"name" jsonschema:"Drawing name."`
 	Elements     any    `json:"elements,omitempty" jsonschema:"JSON array of Excalidraw elements."`
 	CollectionID string `json:"collectionId,omitempty" jsonschema:"Optional collection id."`
 }
 
-// updateDrawingArgs are the inputs of update_drawing.
 type updateDrawingArgs struct {
 	ID       string  `json:"id" jsonschema:"Drawing id."`
 	Name     *string `json:"name,omitempty" jsonschema:"New name."`
 	Elements any     `json:"elements,omitempty" jsonschema:"Replacement JSON array of Excalidraw elements."`
 }
 
-// restoreDrawingVersionArgs are the inputs of restore_drawing_version.
 type restoreDrawingVersionArgs struct {
 	ID         string `json:"id" jsonschema:"Drawing id."`
 	SnapshotID string `json:"snapshotId" jsonschema:"Version id to restore."`
@@ -216,12 +211,10 @@ func newListCollectionsHandler(api *excalidash.Client) mcp.ToolHandlerFor[struct
 	}
 }
 
-// drawingPath builds the API path of one drawing.
 func drawingPath(id string) string {
 	return "/drawings/" + url.PathEscape(id)
 }
 
-// summariseAll reduces the drawings of a list response.
 func summariseAll(body any) []excalidash.Summary {
 	object, _ := body.(map[string]any)
 	raw, _ := object["drawings"].([]any)
@@ -235,7 +228,6 @@ func summariseAll(body any) []excalidash.Summary {
 	return drawings
 }
 
-// summariseOne reduces a single drawing response.
 func summariseOne(body any) any {
 	drawing, ok := body.(map[string]any)
 	if !ok {
@@ -244,7 +236,6 @@ func summariseOne(body any) any {
 	return excalidash.Summarise(drawing)
 }
 
-// jsonResult renders a value as an indented JSON tool result.
 func jsonResult(value any) (*mcp.CallToolResult, any, error) {
 	encoded, err := json.MarshalIndent(value, "", "  ")
 	if err != nil {
@@ -253,7 +244,6 @@ func jsonResult(value any) (*mcp.CallToolResult, any, error) {
 	return &mcp.CallToolResult{Content: []mcp.Content{&mcp.TextContent{Text: string(encoded)}}}, nil, nil
 }
 
-// errorResult renders a failure as a tool error result.
 func errorResult(err error) (*mcp.CallToolResult, any, error) {
 	return &mcp.CallToolResult{
 		IsError: true,

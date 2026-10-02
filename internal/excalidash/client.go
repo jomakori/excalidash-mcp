@@ -134,7 +134,6 @@ func (c *Client) attempt(ctx context.Context, method, path string, body []byte) 
 	return value, nil
 }
 
-// newRequest builds a request carrying the origin and, for writes, the CSRF header.
 func (c *Client) newRequest(ctx context.Context, method, path string, body []byte) (*http.Request, error) {
 	var reader io.Reader
 	if body != nil {
@@ -157,7 +156,6 @@ func (c *Client) newRequest(ctx context.Context, method, path string, body []byt
 	return request, nil
 }
 
-// refreshCSRF fetches a token and keeps the cookie it is bound to.
 func (c *Client) refreshCSRF(ctx context.Context) error {
 	request, err := http.NewRequestWithContext(ctx, http.MethodGet, c.baseURL+csrfPath, nil)
 	if err != nil {
@@ -197,14 +195,12 @@ func (c *Client) refreshCSRF(ctx context.Context) error {
 	return nil
 }
 
-// csrf returns the current CSRF header name and token.
 func (c *Client) csrf() (string, string) {
 	c.mu.Lock()
 	defer c.mu.Unlock()
 	return c.csrfHeader, c.csrfToken
 }
 
-// encodePayload marshals a request payload, returning nil when there is none.
 func encodePayload(payload any) ([]byte, error) {
 	if payload == nil {
 		return nil, nil
@@ -229,7 +225,6 @@ func (e *APIError) Error() string {
 	return fmt.Sprintf("HTTP %d %s %s: %s", e.Status, e.Method, e.Path, body)
 }
 
-// staleCSRF reports whether the API rejected the call for a bad CSRF token.
 func (e *APIError) staleCSRF() bool {
 	return e.Status == http.StatusForbidden && strings.Contains(e.Body, "CSRF")
 }

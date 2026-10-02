@@ -27,7 +27,6 @@ func main() {
 	}
 }
 
-// envOr returns the environment value of key, or fallback when it is unset.
 func envOr(key, fallback string) string {
 	if value := os.Getenv(key); value != "" {
 		return value

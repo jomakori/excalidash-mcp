@@ -57,7 +57,6 @@ func connect(t *testing.T, backendURL string) *mcp.ClientSession {
 	return clientSession
 }
 
-// schemaOf returns the advertised input schema of a tool.
 func schemaOf(t *testing.T, tools []*mcp.Tool, name string) (map[string]any, []string) {
 	t.Helper()
 

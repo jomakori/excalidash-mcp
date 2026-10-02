@@ -1,0 +1,43 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - "v*"
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        goarch:
+          - arm64
+          - amd64
+    steps:
+      - uses: actions/checkout@v4.2.2
+      - uses: actions/setup-go@v5.6.0
+        with:
+          go-version-file: go.mod
+      - name: Build
+        env:
+          CGO_ENABLED: "0"
+          GOOS: linux
+          GOARCH: ${{ matrix.goarch }}
+        run: go build -trimpath -ldflags "-s -w -X main.version=${{ github.ref_name }}" -o excalidash-mcp .
+      - name: Package
+        run: tar -czf "excalidash-mcp-linux-${{ matrix.goarch }}.tar.gz" excalidash-mcp
+      - name: Release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: ${{ github.ref_name }}
+        run: |
+          if ! gh release view "$TAG" >/dev/null 2>&1; then
+            gh release create "$TAG" --title "$TAG" --generate-notes || gh release view "$TAG" >/dev/null
+          fi
+          gh release upload "$TAG" "excalidash-mcp-linux-${{ matrix.goarch }}.tar.gz" --clobber
+          assets="$(gh release view "$TAG" --json assets --jq '.assets[].name')"
+          echo "$assets"
+          grep -qx "excalidash-mcp-linux-${{ matrix.goarch }}.tar.gz" <<<"$assets"

@@ -29,7 +29,8 @@ class ApiError(Exception):
 def _csrf_token() -> dict:
     """Fetch a CSRF token, keeping the cookie it is bound to."""
     req = urllib.request.Request(
-        BASE_URL + "/csrf-token", headers={"Origin": ORIGIN, "Accept": "application/json"}
+        BASE_URL + "/csrf-token",
+        headers={"Origin": ORIGIN, "Accept": "application/json"},
     )
     with _opener.open(req, timeout=30) as resp:
         body = json.loads(resp.read().decode())
@@ -84,7 +85,7 @@ def _elements(value) -> list:
     if isinstance(value, str):
         value = json.loads(value)
     if not isinstance(value, list):
-        raise ValueError("elements must be a JSON array or a JSON-encoded array")
+        raise TypeError("elements must be a JSON array or a JSON-encoded array")
     return value
 
 
@@ -95,7 +96,10 @@ TOOLS = [
         "inputSchema": {
             "type": "object",
             "properties": {
-                "limit": {"type": "integer", "description": "Maximum drawings to return."}
+                "limit": {
+                    "type": "integer",
+                    "description": "Maximum drawings to return.",
+                }
             },
         },
     },
@@ -119,7 +123,10 @@ TOOLS = [
                     "type": "string",
                     "description": "JSON array of Excalidraw elements.",
                 },
-                "collectionId": {"type": "string", "description": "Optional collection id."},
+                "collectionId": {
+                    "type": "string",
+                    "description": "Optional collection id.",
+                },
             },
             "required": ["name"],
         },
@@ -174,7 +181,10 @@ TOOLS = [
             "type": "object",
             "properties": {
                 "id": {"type": "string", "description": "Drawing id."},
-                "snapshotId": {"type": "string", "description": "Version id to restore."},
+                "snapshotId": {
+                    "type": "string",
+                    "description": "Version id to restore.",
+                },
             },
             "required": ["id", "snapshotId"],
         },
@@ -276,9 +286,11 @@ def _handle(msg: dict) -> dict | None:
             return {
                 "jsonrpc": "2.0",
                 "id": msg_id,
-                "result": _text(_call(params.get("name", ""), params.get("arguments") or {})),
+                "result": _text(
+                    _call(params.get("name", ""), params.get("arguments") or {})
+                ),
             }
-        except (ApiError, ValueError, KeyError, json.JSONDecodeError) as err:
+        except (ApiError, TypeError, ValueError, KeyError, json.JSONDecodeError) as err:
             return {"jsonrpc": "2.0", "id": msg_id, "result": _text(str(err), True)}
     return {
         "jsonrpc": "2.0",
